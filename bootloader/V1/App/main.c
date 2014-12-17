@@ -5,6 +5,7 @@
 #include "timer.h"
 
 uint8 pbuf[10];
+unsigned char RxBuf[RxBuf_Len];
 
 
  void *const bootfunc[]={
@@ -49,9 +50,33 @@ int main(void)
     SysTick_Init(TICKS_13US);
 
 	app_enroll_tick_hdl(isr_13us, 0);   //13us在底层配置的，配置完成就关闭了
-	
+
+
+//	SpiMsterGpioInit(SPI_2);
+	TIM3_NVIC_Configuration();
+//
+//	while(1)
+//	{
+//		static uint8 time1 = 0;
+//
+//		 USB_OTG_BSP_mDelay(10);
+//		if(time1 ==1 )
+//		{
+//			time1 = 0;
+//			PBout(12) = 1;
+//		}
+//		else
+//		{
+//			time1 = 1;
+//			PBout(12) = 0;
+//		}
+//	   	
+//	 
+//	}
 
 	
+
+#if 1	
 	SpiMsterGpioInit(SPI_2);
 
  	RFM69H_Config();
@@ -61,29 +86,37 @@ int main(void)
 //	
 	while(1)
 	{	   
-		int len =0;
-//		printf("system is working\r\n");
-//		 RFM69H_EntryRx();
-		 if(RFM69H_RxPacket(pbuf))
+	   uint8_t uu;
+	   		int len =0;
+
+//		SPIWrite(SPI_2, 0x0632);
+//		uu = SPIRead(SPI_2, 0x06);
+//		printf("%X\r\n", uu);
+
+		 len = RFM69H_RxPacket(RxBuf);
 		 {	
-		 	len = RFM69H_Analysis();
 			Disable_SysTick();
 			if(len > 0)
 			{	
+				
+				printf("receive data len = %d\r\n", len);
+#if SEND
 				RFM69H_EntryTx();
 				if(RFM69H_TxWaitStable())
 				{
 					while(1)
 					{
+						USB_OTG_BSP_mDelay (500);
 						RFM69H_SendData(&rfm69h_data);
-						printf("data len = %d\r\n", len);
+						printf("send data len = %d\r\n", len);
 					}
 				}
+#endif
 			}
 		 }
 		 	
 	}
-
+#endif
 
 #if 0
     Boot_UsartSend("syx",3);

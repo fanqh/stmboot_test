@@ -55,7 +55,7 @@ extern RFM69H_DATA_Type rfm69h_data;
 
 //void RFM69H_Running(u8 mode,u8 WorkStatus,u8 ParaChangeFlag,u8 *TxFlag,u8 *RxFlag,u8 *RSSI);
 void RFM69H_Config(void);
-u8 RFM69H_RxPacket(uint8* pbuff);
+int RFM69H_RxPacket(uint8* pbuff);
 u8 RFM69H_TxPacket(u8* pSend);
 void RFM69H_EntryTx(void);
 void RFM69H_EntryRx(void);

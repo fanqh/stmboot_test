@@ -150,11 +150,11 @@ const u16 RFM69HTxTbl[5] =
 **********************************************************/
 #define  RF69H_DATA_RCC	    RCC_APB2Periph_GPIOB
 #define  RF69H_DATA_PORT	GPIOB
-#define  RF69H_DATA_PIN	    GPIO_Pin_2
+#define  RF69H_DATA_PIN	    GPIO_Pin_11
 
 
-#define  RFM69H_DATA_IN     PBin(2)
-#define  RFM69H_DATA_OUT    PBout(2)
+#define  RFM69H_DATA_IN     PBin(11)
+#define  RFM69H_DATA_OUT    PBout(11)
 
 
 RFM69H_DATA_Type rfm69h_data;
@@ -363,7 +363,7 @@ u8 RFM69H_ReadRSSI(void)
 **Output:   "!0"-----Receive one packet
 **          "0"------Nothing for receive
 **********************************************************/
-u8 RFM69H_RxPacket(uint8 *pbuff)
+int RFM69H_RxPacket(uint8 *pbuff)
 {
   uint16_t timeout =0; 
  
@@ -382,7 +382,7 @@ u8 RFM69H_RxPacket(uint8 *pbuff)
 ////	Boot_UsartSend("12",2);
 //	SPIBurstRead(SPI_2, 0x00, pbuff, RxBuf_Len);  
 //    RFM69H_ClearFIFO();  
-	return 1;
+	return RFM69H_Analysis();
   }
   else										  
   	return 0;
@@ -419,7 +419,7 @@ u8 RFM69H_TxPacket(u8* pSend)
 
 
 
-#define  STUDY_TIMEOUT   500000      //500ms
+#define  STUDY_TIMEOUT   5000      //500ms
 #define  DATA_TIMEOUT    5000        //5ms
 #define  VALID_TIME      200           //200us
 
@@ -445,13 +445,11 @@ int RFM69H_Analysis(void)
 			{
 				if(DataTimeCount * 13 > STUDY_TIMEOUT)  //如果5S内一直保持高电平，即没有数据接收
 				{
-//					printf("IDLE: timeout\r\n");
 					return  -1;
 				}
 			}
 
 			DataState = ACTIVING;
-//			printf("enter activing\r\n");
 
 		}
 		if(DataState == ACTIVING)
@@ -463,7 +461,6 @@ int RFM69H_Analysis(void)
 			{
 				if(DataTimeCount *13 > STUDY_TIMEOUT)  //如果100MS一直内低电平跳出
 				{
-//					printf("activing: timeout\r\n");
 					return -1;
 				}	
 			}
@@ -473,7 +470,6 @@ int RFM69H_Analysis(void)
 				rfm69h_data.buff[i].HoldTime = (DataTimeCount * 13);
 				rfm69h_data.buff[i++].pulse = 0;
 				rfm69h_data.len = i;
-//				printf("activing :enter Pulse_hig time = %d\r\n", DataTimeCount);
 
 				DataState = PULSE_HIG;
 			}	
@@ -487,7 +483,6 @@ int RFM69H_Analysis(void)
 			{
 				if(DataTimeCount * 13 > DATA_TIMEOUT)  //如果5S内一直保持高电平，即没有数据接收
 				{
-//					printf("pusle_hig: timeout i = %d\r\n", i);
 					return i;   //学习结束，返回数据长度
 				}
 			}
@@ -496,8 +491,6 @@ int RFM69H_Analysis(void)
 				rfm69h_data.buff[i].HoldTime = (DataTimeCount * 13);
 				rfm69h_data.buff[i++].pulse = 1;
 				rfm69h_data.len = i;
-				
-//				printf("1: %d\r\n", DataTimeCount);	
 
 
 				DataState = PULSE_LOW;
@@ -513,7 +506,6 @@ int RFM69H_Analysis(void)
 			{
 				if(DataTimeCount * 13 > DATA_TIMEOUT)  //如果5S内一直保持高电平，即没有数据接收
 				{
-//					printf("pusle_low: timeout i = %d\r\n", i);
 					return i; 	   //学习结束，返回数据长度
 				}
 			}
@@ -523,7 +515,6 @@ int RFM69H_Analysis(void)
 				rfm69h_data.buff[i++].pulse = 0;
 				rfm69h_data.len = i;	
 
-//				printf("0: %d\r\n", DataTimeCount);
 				__disable_irq();
 				DataTimeCount = 0;
 			    __enable_irq();	
