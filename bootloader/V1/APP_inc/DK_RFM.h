@@ -11,6 +11,9 @@
 
 #define RFM69H_DATA_LEN	 512
 
+#define  RFM69H_DATA_IN     PBin(11)
+#define  RFM69H_DATA_OUT    PBout(11)
+
 typedef enum
 {
 	RFM69H_IDLE,
@@ -55,14 +58,14 @@ extern RFM69H_DATA_Type rfm69h_data;
 
 //void RFM69H_Running(u8 mode,u8 WorkStatus,u8 ParaChangeFlag,u8 *TxFlag,u8 *RxFlag,u8 *RSSI);
 void RFM69H_Config(void);
-int RFM69H_RxPacket(uint8* pbuff);
+int RFM69H_RxPacket(RFM69H_DATA_Type* p);
 u8 RFM69H_TxPacket(u8* pSend);
 void RFM69H_EntryTx(void);
 void RFM69H_EntryRx(void);
 u8 RFM69H_RxWaitStable(void);
 u8 RFM69H_TxWaitStable(void);
 RFM69H_STATE  Get_RFM69H_Status(void);
-int RFM69H_Analysis(void);	
+int RFM69H_Analysis(RFM69H_DATA_Type* pReceive);	
 void RFM69H_SendData(RFM69H_DATA_Type *p);
 
 

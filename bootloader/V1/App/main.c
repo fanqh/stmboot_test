@@ -6,6 +6,7 @@
 
 uint8 pbuf[10];
 unsigned char RxBuf[RxBuf_Len];
+RFM69H_DATA_Type rfm69h_data;
 
 
  void *const bootfunc[]={
@@ -47,35 +48,13 @@ int main(void)
     BSP_IntInit(); 
     Boot_IoInit();
     Boot_UsartInit();
-    SysTick_Init(TICKS_13US);
+    SysTick_Init(TICKS_10US);
 
 	app_enroll_tick_hdl(isr_13us, 0);   //13us在底层配置的，配置完成就关闭了
 
 
 //	SpiMsterGpioInit(SPI_2);
-	TIM3_NVIC_Configuration();
-//
-//	while(1)
-//	{
-//		static uint8 time1 = 0;
-//
-//		 USB_OTG_BSP_mDelay(10);
-//		if(time1 ==1 )
-//		{
-//			time1 = 0;
-//			PBout(12) = 1;
-//		}
-//		else
-//		{
-//			time1 = 1;
-//			PBout(12) = 0;
-//		}
-//	   	
-//	 
-//	}
-
-	
-
+	TIM3_NVIC_Configuration();	
 #if 1	
 	SpiMsterGpioInit(SPI_2);
 
@@ -87,32 +66,45 @@ int main(void)
 	while(1)
 	{	   
 	   uint8_t uu;
-	   		int len =0;
+	   		int len1,len2;
 
 //		SPIWrite(SPI_2, 0x0632);
 //		uu = SPIRead(SPI_2, 0x06);
 //		printf("%X\r\n", uu);
-
-		 len = RFM69H_RxPacket(RxBuf);
-		 {	
+		 len1 = RFM69H_RxPacket(&rfm69h_data);
+		 {
 			Disable_SysTick();
-			if(len > 0)
+			if(len1 > 0)
 			{	
 				
-				printf("receive data len = %d\r\n", len);
-#if SEND
+				printf("receive data len = %d\r\n", len1);
+//				printf("receive data len = %d\r\n", len2);
+#if 1
 				RFM69H_EntryTx();
 				if(RFM69H_TxWaitStable())
 				{
 					while(1)
 					{
-						USB_OTG_BSP_mDelay (500);
+					    RFM69H_DATA_OUT = 1;
+						USB_OTG_BSP_mDelay (10);
 						RFM69H_SendData(&rfm69h_data);
-						printf("send data len = %d\r\n", len);
+
+						RFM69H_DATA_OUT = 0;
+						USB_OTG_BSP_mDelay (10);
+						RFM69H_SendData(&rfm69h_data);
+
+						RFM69H_DATA_OUT = 0;
+						USB_OTG_BSP_mDelay (10);
+						RFM69H_SendData(&rfm69h_data);
+
+						RFM69H_DATA_OUT = 1;
+						USB_OTG_BSP_mDelay (1000);
+
+						printf("send data len = %d\r\n", len1);
 					}
 				}
 #endif
-			}
+			  }
 		 }
 		 	
 	}

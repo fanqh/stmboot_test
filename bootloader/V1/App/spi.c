@@ -62,32 +62,13 @@ void SpiMsterGpioInit(uint8_t spi)
 }
 
 
-static void delay(void)	  ///1US
+static void delay(void)	  
 {
-    int i =3 ;
-    //while(times--)
-    {
-       
-       // i=3;
         __NOP();
         __NOP();
         __NOP();
         __NOP();
         __NOP();
-        
-        __NOP();
-        __NOP();
-        while(i--)
-        {
-           __NOP();
-           __NOP();
-           __NOP();
-           __NOP();
-           __NOP();
-           
-        }
-    }
-
 }
 
 #if 1
