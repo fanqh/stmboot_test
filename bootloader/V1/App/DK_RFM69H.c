@@ -13,6 +13,7 @@
 #include"Include.h"
 #include "spi.h"
 #include "DK_RFM.h"
+#include "timer.h"
 
 /************************Description************************
                       ________________
@@ -367,19 +368,6 @@ int RFM69H_RxPacket(RFM69H_DATA_Type *p)
  
   if(RFM69H_RxWaitStable())
   {
-
-//  	delay_ms(100);
-//  	while(!nIRQ0)
-//	{
-//		timeout ++;
-//		if(timeout >= 1000)
-//			return 0;
-//		delay_ms(10);
-//	//	Boot_UsartSend("67",2);
-//	}
-////	Boot_UsartSend("12",2);
-//	SPIBurstRead(SPI_2, 0x00, pbuff, RxBuf_Len);  
-//    RFM69H_ClearFIFO();  
 	return RFM69H_Analysis(p);
   }
   else										  
@@ -392,7 +380,7 @@ int RFM69H_RxPacket(RFM69H_DATA_Type *p)
 **Input:    none
 **Output:   TxFlag=1, Send success
 **********************************************************/
-u8 RFM69H_TxPacket(u8* pSend)
+u8 RFM69H_TxPacket(RFM69H_DATA_Type* pSend)
 {
   uint16_t timeout = 0;
 
@@ -407,8 +395,8 @@ u8 RFM69H_TxPacket(u8* pSend)
 			RFM69H_Config();
 			return 0;
 		}
-//		delay_ms(10);
 	 }
+	 RFM69H_Send(pSend);
 	 return 1;
   }
   else
@@ -480,29 +468,6 @@ int RFM69H_Analysis(RFM69H_DATA_Type* pReceive)
 				DataState = PULSE_HIG;
 			}	
 		}
-
-//		else if(DataState == ACTIVING)
-//		{
-//			__disable_irq();
-//			DataTimeCount = 0;
-//		    __enable_irq(); 
-//			while(RFM69H_DATA_IN==0)
-//			{
-//				if(DataTimeCount *TIME_UNIT > STUDY_TIMEOUT)  //如果100MS一直内低电平跳出
-//				{
-//					return -1;
-//				}	
-//			}
-//			if(DataTimeCount * TIME_UNIT > VALID_TIME)	  //如果低电平保持时间大于400us，说明不是干扰信号
-//			{
-//				
-//				pReceive->buff[i].HoldTime = (DataTimeCount * TIME_UNIT);
-//				pReceive->buff[i++].pulse = 0;
-//				pReceive->len = i;
-//
-//				DataState = PULSE_HIG;
-//			}	
-//		}
 		else if(DataState == PULSE_HIG)
 		{
 			__disable_irq();
@@ -601,7 +566,6 @@ void RFM69H_SendData(RFM69H_DATA_Type *p)
 int RFM69H_Analysis(RFM69H_DATA_Type* pReceive)
 {
 	uint16 i = 0;
-	uint8_t irstFrame = 0;
 	DataState_t  DataState;  
 
   
@@ -730,14 +694,13 @@ int RFM69H_Analysis(RFM69H_DATA_Type* pReceive)
 	return i;		
 }
 
-void RFM69H_SendData(RFM69H_DATA_Type *p)
+int RFM69H_SendData(RFM69H_DATA_Type *p)
 {
 	uint16 i = 0;
 
 	Enable_SysTick();		//启动定时器0
 	RF69H_DataCongfigOUT();
 
-	#if 1
 	rfm69h_status = RFM69H_SENDING;
 	while( i < p->len )
 	{
@@ -765,8 +728,29 @@ void RFM69H_SendData(RFM69H_DATA_Type *p)
 	Disable_SysTick();
 	RFM69H_DATA_OUT = 0;
 	USB_OTG_BSP_uDelay (20);
+	rfm69h_status = RFM69H_IDLE;
 
-	#endif
+	return 1;
+}
+
+int RFM69H_Send(RFM69H_DATA_Type *pData)
+{
+		RFM69H_DATA_OUT = 1;
+		USB_OTG_BSP_mDelay (10);
+		RFM69H_SendData(pData);
+
+		RFM69H_DATA_OUT = 0;
+		USB_OTG_BSP_mDelay (10);
+		RFM69H_SendData(pData);
+
+		RFM69H_DATA_OUT = 0;
+		USB_OTG_BSP_mDelay (10);
+		RFM69H_SendData(pData);
+
+		RFM69H_DATA_OUT = 1;
+		USB_OTG_BSP_mDelay (50);
+
+		return 1;
 }
 
 #endif

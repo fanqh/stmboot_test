@@ -66,45 +66,28 @@ int main(void)
 	while(1)
 	{	   
 	   uint8_t uu;
-	   		int len1,len2;
+	   	int len1;
 
 //		SPIWrite(SPI_2, 0x0632);
 //		uu = SPIRead(SPI_2, 0x06);
 //		printf("%X\r\n", uu);
 		 len1 = RFM69H_RxPacket(&rfm69h_data);
 		 {
-			Disable_SysTick();
+			Disable_SysTick();												   
 			if(len1 > 0)
 			{	
-				
 				printf("receive data len = %d\r\n", len1);
-//				printf("receive data len = %d\r\n", len2);
 #if 1
 				RFM69H_EntryTx();
-				if(RFM69H_TxWaitStable())
+				while(1)
 				{
-					while(1)
-					{
-					    RFM69H_DATA_OUT = 1;
-						USB_OTG_BSP_mDelay (10);
-						RFM69H_SendData(&rfm69h_data);
+					RFM69H_TxPacket(&rfm69h_data);
+					USB_OTG_BSP_mDelay (5000);
 
-						RFM69H_DATA_OUT = 0;
-						USB_OTG_BSP_mDelay (10);
-						RFM69H_SendData(&rfm69h_data);
-
-						RFM69H_DATA_OUT = 0;
-						USB_OTG_BSP_mDelay (10);
-						RFM69H_SendData(&rfm69h_data);
-
-						RFM69H_DATA_OUT = 1;
-						USB_OTG_BSP_mDelay (1000);
-
-						printf("send data len = %d\r\n", len1);
-					}
+					printf("send data len = %d\r\n", len1);
 				}
 #endif
-			  }
+			}
 		 }
 		 	
 	}
