@@ -31,8 +31,8 @@ typedef enum
 
 typedef struct 
 {
-	uint32 HoldTime  : 15;
-	uint32 pulse     : 1;
+	uint16 HoldTime  : 15;
+	uint16 pulse     : 1;
 }data_t;
 
 

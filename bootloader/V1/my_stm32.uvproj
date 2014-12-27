@@ -451,6 +451,11 @@
               <FileType>1</FileType>
               <FilePath>.\App\Timer.c</FilePath>
             </File>
+            <File>
+              <FileName>M3_315.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\M3_315.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

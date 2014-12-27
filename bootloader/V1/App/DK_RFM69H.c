@@ -364,11 +364,13 @@ u8 RFM69H_ReadRSSI(void)
 **********************************************************/
 int RFM69H_RxPacket(RFM69H_DATA_Type *p)
 {
-  uint16_t timeout =0; 
+  int ret  = 0; 
  
   if(RFM69H_RxWaitStable())
   {
-	return RFM69H_Analysis(p);
+	ret = RFM69H_Analysis(p);
+	rfm69h_status = RFM69H_IDLE;
+	return ret;
   }
   else										  
   	return 0;
@@ -409,7 +411,7 @@ u8 RFM69H_TxPacket(RFM69H_DATA_Type* pSend)
 #define  DATA_TIMEOUT    5000        //5ms
 #define  VALID_TIME      200           //200us
 
-#define TIME_UNIT		10
+
 
 
 #if 0

@@ -1,5 +1,6 @@
 #include"Timer.h"
 #include "DK_RFM.h"
+#include "M3_315.h"
 
 
 #if 0
@@ -13,6 +14,8 @@ volatile uint8  read_led_status=0;
 
 uint16_t ted = 0;
 extern unsigned char RxBuf[RxBuf_Len];
+extern volatile uint16	RF315_TimeCount;
+
 
 
 //5ms
@@ -149,6 +152,10 @@ void isr_13us(void)
 	if(Get_RFM69H_Status()!=RFM69H_IDLE)
 	{
 		DataTimeCount ++;
+	}
+	if(Get_rf315_flag())
+	{
+		RF315_TimeCount++;
 	}
 
 }

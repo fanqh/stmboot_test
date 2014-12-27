@@ -3,6 +3,7 @@
 #include "DK_RFM.h"
 #include "stdio.h"
 #include "timer.h"
+#include "M3_315.h"
 
 uint8 pbuf[10];
 unsigned char RxBuf[RxBuf_Len];
@@ -49,20 +50,21 @@ int main(void)
     Boot_IoInit();
     Boot_UsartInit();
     SysTick_Init(TICKS_10US);
+	TIM3_NVIC_Configuration();	
 
 	app_enroll_tick_hdl(isr_13us, 0);   //13us在底层配置的，配置完成就关闭了
+	m3_315_io_config();
 
+	while(1)
+	{
+		RF_decode();	
+	}
 
-//	SpiMsterGpioInit(SPI_2);
-	TIM3_NVIC_Configuration();	
 #if 1	
+	
 	SpiMsterGpioInit(SPI_2);
-
  	RFM69H_Config();
 	RFM69H_EntryRx();
-	
-//		printf("system is working\r\n");	
-//	
 	while(1)
 	{	   
 	   uint8_t uu;

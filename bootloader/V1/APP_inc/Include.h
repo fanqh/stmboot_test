@@ -47,6 +47,8 @@ typedef uint8               BOOL;
 #include"Command_Process.h"
 
 
+#define TIME_UNIT		10		//系统定时器时间
+
 
 #endif
 
