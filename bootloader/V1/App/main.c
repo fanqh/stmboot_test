@@ -57,10 +57,10 @@ int main(void)
 
 	while(1)
 	{
-		RF_decode();	
+//		RF_decode();	
 	}
 
-#if 1	
+#if 0	
 	
 	SpiMsterGpioInit(SPI_2);
  	RFM69H_Config();
