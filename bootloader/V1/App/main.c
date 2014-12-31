@@ -36,7 +36,20 @@ __asm void exit_bios(uint32 func,uint32 addr)
 	bx r1
 }
 
-
+//JTAG模式设置定义
+#define JTAG_SWD_DISABLE   0X02
+#define SWD_ENABLE         0X01
+#define JTAG_SWD_ENABLE    0X00	
+//----------------------------
+void JTAG_Set(u8 mode)
+{
+	u32 temp;
+	temp=mode;
+	temp<<=25;
+	RCC->APB2ENR|=1<<0;     //开启辅助时钟	   
+	AFIO->MAPR&=0XF8FFFFFF; //清除MAPR的[26:24]
+	AFIO->MAPR|=temp;       //设置jtag模式
+} 
 
 
 
@@ -52,12 +65,24 @@ int main(void)
     SysTick_Init(TICKS_10US);
 	TIM3_NVIC_Configuration();	
 
+	JTAG_Set(SWD_ENABLE);		//加
 	app_enroll_tick_hdl(isr_13us, 0);   //13us在底层配置的，配置完成就关闭了
 	m3_315_io_config();
 
 	while(1)
 	{
-//		RF_decode();	
+		RF315_DATA_t  RF315_Receive;
+//		BSP_mDelay(1000);
+//		printf("systme is work\r\n");		
+		if(RF_decode(&RF315_Receive)!=-1)
+		{  while(1)
+		   {
+			RF315_Send(&RF315_Receive);
+			RF315_Send(&RF315_Receive);
+			RF315_Send(&RF315_Receive);	
+			USB_OTG_BSP_mDelay (1000) ;
+			}
+		}	
 	}
 
 #if 0	
